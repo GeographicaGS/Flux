@@ -413,155 +413,71 @@ class GeoVariableArray(object):
         return(self.__data)
 
     def __getitem__(self, key):
-        """Gets data. NOTE: Always retrieve data with a [:,:,:] format. If not, it returns None."""
-        if not isinstance(key, tuple) or len(key)<3:
-            return None
+        """Gets data directly from the internal ndarray. Supported indices:
+        
+        slices: 1:2
+        integers: 2
+        tuples: (2,1)
+        string indices: "US", "2013", "V0"
+        string tuples: ("US","ES")
+        TODO: callables to generate tuples
 
-        print "Start geo: ", key[0], type(key[0])
-        print "Start time: ", key[1], type(key[1])
-        print "Start var: ", key[2], type(key[2])
+        """
+        # print "Geo : ", key[0], type(key[0])
+        # print "Time : ", key[1], type(key[1])
+        # print "Var : ", key[2], type(key[2])
+
+        geo = self.__analyzeKeyGetItemGeo(key[0])
+        time = self.__analyzeKeyGetItemTime(key[1])
+        var = self.__analyzeKeyGetItemVar(key[2])
+
+        # print
+        # print "Geo : ", geo, type(geo)
+        # print "Time : ", time, type(time)
+        # print "Var : ", var, type(var)
+        # print
+
+        return self.__data[geo,time,var]
+
+    def select(self, geoentity, time, variable):
+        """Returns selected data. Indices can be:
+
+        integers: 2
+        strings: "US", "2013", "V0"
+        lists of mixed above
+        None: all
+
+        """
+        # print "Geo : ", key[, type(key[0])
+        # print "Time : ", key[1], type(key[1])
+        # print "Var : ", key[2], type(key[2])
+
+        geo = self.__analyzeKeySelectGeo(geoentity)
+        time = self.__analyzeKeySelectTime(time)
+        var = self.__analyzeKeySelectVar(variable)
+
+        # print
+        # print "Geo : ", geo, type(geo)
+        # print "Time : ", time, type(time)
+        # print "Var : ", var, type(var)
+        # print
 
         out = self.__data
-        print "A"
-        print self.data
-        print
+        out = out[:,:,var]
 
-        print "B"
-        out = out[:,:,key[2]] # .reshape(len(key[0]),len(key[1]))
-        print out
-        print
+        if out.ndim==3:
+            out = out[:,time,:]
+        else:
+            out = out[:,time]
 
-        print "C"
-        out = out[:,key[1]]  # .reshape(len(key[0]))
-        print out
-        print
-
-        print "D"
-        out = out[key[0]]
-        print out
-        print
-
-
-        return self.__data[key]
-
-        
-
-        # geo = self.__analyzeKeyGeoentity(key[0])
-        # time = self.__analyzeKeyTime(key[1])
-        # var = self.__analyzeKeyVariable(key[2])
-
-        # # Filter void tuples
-        # if geo==() or time==() or var==(): return None
-
-        # # Filter single element tuples like (2,) to int
-        # geo = int(geo[0]) if isinstance(geo, tuple) and len(geo)==1 else geo
-        # time = int(time[0]) if isinstance(time, tuple) and len(time)==1 else time
-        # var = int(var[0]) if isinstance(var, tuple) and len(var)==1 else var
-
-        # print "End geo: ", geo, type(geo)
-        # print "End time: ", time, type(time)
-        # print "End var: ", var, type(var)
-        # print
-        # print
-
-        # if isinstance(geo, slice):
-        #     start = geo.start if geo.start else 0
-        #     stop = geo.stop if geo.stop else len(self.__geoentity)
-        #     step = geo.step if geo.step else 1
-        #     itemsGeo = [self.__geoentity[i] for i in range(start, stop, step)]
-        # elif isinstance(geo, int):
-        #     itemsGeo = [self.__geoentity[geo]]
-        # else:
-        #     itemsGeo = [self.__geoentity[i] for i in geo]
-
-        # if isinstance(time, slice):
-        #     start = time.start if time.start else 0
-        #     stop = time.stop if time.stop else len(self.__time)
-        #     step = time.step if time.step else 1
-        #     itemsTime = [self.__time[i] for i in range(start, stop, step)]
-        # elif isinstance(time, int):
-        #     itemsTime = [self.__time[time]]
-        # else:
-        #     itemsTime = [self.__time[i] for i in time]
-
-        # if isinstance(var, slice):
-        #     start = var.start if var.start else 0
-        #     stop = var.stop if var.stop else len(self.__geoentity)
-        #     step = var.step if var.step else 1
-        #     itemsVar = [self.__variable[i] for i in range(start, stop, step)]
-        # elif isinstance(var, int):
-        #     itemsVar = [self.__variable[var]]
-        # else:
-        #     print "VAR is a Tuple : ", type(var)
-        #     itemsVar = [self.__variable[i] for i in var]
-
-
-        # print "Items geo: ", itemsGeo
-        # print "Items time: ", itemsTime
-        # print "Items var: ", itemsVar
-
-
-        # # If any of the indices is a tuple, life becomes a little bit miserable
-        # if any([str(type(x))=="<type 'tuple'>" for x in (geo,time,var)]):
-        #     ordered = True
-        #     sequence = [geo,time,var]
-        #     typ = ["geo","time","var"]
-        #     while ordered:
-        #         ordered = False
-        #         print "Ordered : ", sequence, typ
-        #         i = 0
-        #         while i<2:
-        #             if not isinstance(sequence[i], tuple) and isinstance(sequence[i+1], tuple):
-        #                 sequence[i], sequence[i+1] = sequence[i+1], sequence[i]
-        #                 typ[i], typ[i+1] = typ[i+1], typ[i]
-        #                 ordered = True
-        #             else:
-        #                 i+=1
-
-        #     out = self.__data
-        #     dims = 3
-        #     for i in range(0,3):
-        #         print "i : ", i
-        #         print "Dims : ", dims
-        #         print "out"
-        #         print out
-        #         print
-        #         if typ[i]=="geo":
-        #             if dims==3:
-        #                 out = out[geo,:,:]
-        #             if dims==2:
-        #                 out = out[geo,:]
-        #             if dims==1:
-        #                 out = out[geo]
-        #         if typ[i]=="time":
-        #             if dims==3:
-        #                 out = out[:,time,:]
-        #             if dims==2:
-        #                 out = out[:,time]
-        #             if dims==1:
-        #                 out = out[time]
-        #         if typ[i]=="var":
-        #             print "999 : ", var
-
-        #             if dims==3:
-        #                 out = out[:,:,var]
-        #             if dims==2:
-        #                 out = out[:,var]
-        #             if dims==1:
-        #                 out = out[var]
-        #         if not isinstance(sequence[i], tuple):
-        #             # print "Not tuple? :", type(typ[i])
-        #             dims-=1
-        #     return out
-        # else:
-        #     return self.__data[geo,time,var]
-
+        if out.ndim==3:
+            out = out[geo,:,:]
+        elif out.ndim==2:
+            out = out[geo,:]
+        else:
+            out = out[geo]
             
-
-        # # # if isinstance(key, (slice, int)):
-        # # #     return(self.__data[key])
-
-
+        return out        
 
     def __setitem__(self, key, value):
         """Set item.
@@ -574,16 +490,288 @@ class GeoVariableArray(object):
         should set the values for 2010 for the 4 geoentities to the
         given values.
 
+        TODO: Try slices with steps
+
         """
-        geo = self.__analyzeKeyGeoentity(key[0])
-        time = self.__analyzeKeyTime(key[1])
-        var = self.__analyzeKeyVariable(key[2])
+        # print "Geo : ", key[0], type(key[0])
+        # print "Time : ", key[1], type(key[1])
+        # print "Var : ", key[2], type(key[2])
+        # print
 
-        print "geo : ", geo
-        print "time : ", time
-        print "var : ", var
+        geo = self.__analyzeKeyGetItemGeo(key[0])
+        time = self.__analyzeKeyGetItemTime(key[1])
+        var = self.__analyzeKeyGetItemVar(key[2])
 
-        self.__data[geo,time,var]=value
+
+        # print
+        # print "Geo : ", geo, type(geo)
+        # print "Time : ", time, type(time)
+        # print "Var : ", var, type(var)
+        # print
+
+        self.__data[geo,time,var] = value
+
+        # ---------------------------------------------------------------------------------
+        # DO NOT DELETE THIS BLOCK! May be of use to implement a set method based on select
+        # ---------------------------------------------------------------------------------
+
+        # if any([isinstance(x, list) for x in key]):
+        #     print "LISTS!!"
+        
+        #     if isinstance(geo, slice):
+        #         start = geo.start if geo.start is not None else 0
+        #         stop = geo.stop if geo.stop is not None else len(self.__geoentity)
+        #         step = geo.step if geo.step is not None else 1
+        #         geo = tuple(range(start, stop, step))
+
+        #     if isinstance(time, slice):
+        #         start = time.start if time.start is not None else 0
+        #         stop = time.stop if time.stop is not None else len(self.__time)
+        #         step = time.step if time.step is not None else 1
+        #         time = tuple(range(start, stop, step))
+
+        #     if isinstance(var, slice):
+        #         start = var.start if var.start is not None else 0
+        #         stop = var.stop if var.stop is not None else len(self.__variable)
+        #         step = var.step if var.step is not None else 1
+        #         var = tuple(range(start, stop, step))
+
+        #     print "Value"
+        #     print value
+
+        #     for g in range(len(geo)):
+        #         for t in range(len(time)):
+        #             for v in range(len(var)):
+        #                 print g,t,v
+        #                 print self.__data[geo[g],time[t],var[v]] 
+        #                 print value[g,t,v]
+        #                 self.__data[geo[g],time[t],var[v]] = value[g,t,v]
+                        
+
+        # else:
+        #     if all([isinstance(x, tuple) for x in key]):
+        #         self.__data[geo,time,var] = value
+        #         return None
+
+        #     if any([isinstance(x, tuple) for x in key]):
+        #         raise FluxException("GeoVariableArray __getitem__: cannot mix tuples with other keys.")
+        
+
+
+            
+
+
+        # print "Geo : ", key[0], type(key[0])
+        # print "Time : ", key[1], type(key[1])
+        # print "Var : ", key[2], type(key[2])
+
+        # geo = self.__analyzeKeyGeo(key[0])
+        # time = self.__analyzeKeyTime(key[1])
+        # var = self.__analyzeKeyVar(key[2])
+
+        # if all([isinstance(x, tuple) for x in key]):
+        #     return self.__data[geo,time,var]
+
+        # if any([isinstance(x, tuple) for x in key]):
+        #     raise FluxException("GeoVariableArray __getitem__ error: cannot mix tuples with other keys.")
+
+        # out = self.__data
+
+        # print
+        # print "Geo : ", geo, type(geo)
+        # print "Time : ", time, type(time)
+        # print "Var : ", var, type(var)
+        # print
+
+        # out = out[:,:,var]
+
+        # if out.ndim==3:
+        #     out = out[:,time,:]
+        # else:
+        #     out = out[:,time]
+
+        # if out.ndim==3:
+        #     out = out[geo,:,:]
+        # elif out.ndim==2:
+        #     out = out[geo,:]
+        # else:
+        #     out = out[geo]
+    
+        # out = value
+
+
+        # geo = self.__analyzeKeyGeo(key[0])
+        # time = self.__analyzeKeyTime(key[1])
+        # var = self.__analyzeKeyVar(key[2])
+        # out = self.__data
+
+        # # self[key] = value
+        # pass
+        # print "geo : ", geo
+        # print "time : ", time
+        # print "var : ", var
+
+        # out = out[:,:,var]
+
+        # if out.ndim==3:
+        #     out = out[:,time,:]
+        # else:
+        #     out = out[:,time]
+
+        # if out.ndim==3:
+        #     out = out[geo,:,:]
+        # elif out.ndim==2:
+        #     out = out[geo,:]
+        # else:
+        #     out = out[geo]
+
+        # out = value
+
+        # print "JJ"
+        # print out
+        # print
+
+    def __analyzeKeyGetItemGeo(self, key):
+        """Analyses a geoentity key for get/set.
+
+        TODO: implement callable (to create tuples)
+        TODO: work with Time object.
+        TODO: drop old methods.
+        """
+        if isinstance(key, (slice)):
+            return key
+
+        key = (key,) if not isinstance(key, tuple) else key
+        out = ()
+
+        for i in key:
+            if isinstance(i, int):
+                out += (i,)
+            if isinstance(i, str):
+                out += (self.__geoentity.index(i),)
+
+        return out
+
+    def __analyzeKeyGetItemTime(self, key):
+        """Analyses a time key for get/set.
+
+        TODO: implement callable (even list of callables)
+        TODO: work with Time object.
+        """
+        if isinstance(key, (slice)):
+            return key
+
+        key = (key,) if not isinstance(key, tuple) else key
+        out = ()
+
+        for i in key:
+            if isinstance(i, int):
+                out += (i,)
+            if isinstance(i, str):
+                # TODO: PROBLEMS AHEAD!!! This can yield more elements in the resulting tuple than expected
+                for k in range(0, len(self.__time)):
+                    if self.__time[k]/i:
+                        out += (k,)
+
+        return out
+
+    def __analyzeKeyGetItemVar(self, key):
+        """Analyses a variable key for get/set.
+
+        TODO: implement callable (even list of callables)
+        TODO: work with variable object.
+        """
+        if isinstance(key, (slice)):
+            return key
+
+        key = (key,) if not isinstance(key, tuple) else key
+        out = ()
+
+        for i in key:
+            if isinstance(i, int):
+                out += (i,)
+            if isinstance(i, str):
+                out += (self.__variable.index(i),)
+
+        return out
+
+
+
+
+
+
+
+    def __analyzeKeySelectGeo(self, key):
+        """Analyses a geoentity key for get/set.
+
+        TODO: implement callable (to create tuples)
+        TODO: work with Time object.
+        TODO: drop old methods.
+        """
+        if key is None:
+            return slice(None, None)
+
+        key = [key] if not isinstance(key, list) else key
+        out = ()
+
+        for i in key:
+            if isinstance(i, int):
+                out += (i,)
+            if isinstance(i, str):
+                out += (self.__geoentity.index(i),)
+
+        return out
+
+    def __analyzeKeySelectTime(self, key):
+        """Analyses a time key for get/set.
+
+        TODO: implement callable (even list of callables)
+        TODO: work with Time object.
+        """
+        if key is None:
+            return slice(None, None)
+
+        key = [key] if not isinstance(key, list) else key
+        out = ()
+
+        for i in key:
+            if isinstance(i, int):
+                out += (i,)
+            if isinstance(i, str):
+                # TODO: PROBLEMS AHEAD!!! This can yield more elements in the resulting tuple than expected
+                for k in range(0, len(self.__time)):
+                    if self.__time[k]/i:
+                        out += (k,)
+
+        return out
+
+    def __analyzeKeySelectVar(self, key):
+        """Analyses a variable key for get/set.
+
+        TODO: implement callable (even list of callables)
+        TODO: work with variable object.
+        """
+        if key is None:
+            return slice(None, None)
+
+        key = [key] if not isinstance(key, list) else key
+        out = ()
+
+        for i in key:
+            if isinstance(i, int):
+                out += (i,)
+            if isinstance(i, str):
+                out += (self.__variable.index(i),)
+
+        return out
+
+
+
+
+
+
+
+
 
     def getSubset(self, key):
         """TODO: Returns a GeoVariableArray with the given subset. Take code
@@ -635,67 +823,67 @@ class GeoVariableArray(object):
                 else:
                     i+=1
 
-    def __analyzeKeyTime(self, key):
-        """Analyses a time key. TODO: this has a problem when asking for a
-        non-existent year, like in data["US","2323","V0"]. FIX!
+    # def __analyzeKeyTime(self, key):
+    #     """Analyses a time key. TODO: this has a problem when asking for a
+    #     non-existent year, like in data["US","2323","V0"]. FIX!
 
-        """
-        print "UUU : ",key, type(key)
+    #     """
+    #     print "UUU : ",key, type(key)
 
-        if callable(key):
-            out = ()
-            for i in range(0, len(self.__time)):
-                # print "ll : ", key(self.__time[i])
-                if key(self.__time[i]):
-                    out+=(i,)
-            return out
-        if isinstance(key, (str, Time)):
-            out = ()
-            for i in range(0, len(self.__time)):
-                if self.__time[i]/key:
-                    out+=(i,)
-            return out
-        if isinstance(key, tuple):
-            out = ()
-            for i in key:
-                out+=((self.__analyzeKeyTime(i),),)
+    #     if callable(key):
+    #         out = ()
+    #         for i in range(0, len(self.__time)):
+    #             # print "ll : ", key(self.__time[i])
+    #             if key(self.__time[i]):
+    #                 out+=(i,)
+    #         return out
+    #     if isinstance(key, (str, Time)):
+    #         out = ()
+    #         for i in range(0, len(self.__time)):
+    #             if self.__time[i]/key:
+    #                 out+=(i,)
+    #         return out
+    #     if isinstance(key, tuple):
+    #         out = ()
+    #         for i in key:
+    #             out+=((self.__analyzeKeyTime(i),),)
 
-            print "KLLLL : ", out
-            return tuple(x for y in out for x in y)
-        if isinstance(key, (int, slice)):
-            return key
+    #         print "KLLLL : ", out
+    #         return tuple(x for y in out for x in y)
+    #     if isinstance(key, (int, slice)):
+    #         return key
         
-    def __analyzeKeyGeoentity(self, key):
-        """Analyses key for a given dimension."""
-        if isinstance(key, str):
-            return(self.geoentity.index(key))
-        if isinstance(key, tuple):
-            out = ()
-            for i in key:
-                out+=((self.__analyzeKeyGeoentity(i),),)
-            return tuple(x for y in out for x in y)
-        if isinstance(key, (int, slice)):
-            return key
+    # def __analyzeKeyGeoentity(self, key):
+    #     """Analyses key for a given dimension."""
+    #     if isinstance(key, str):
+    #         return(self.geoentity.index(key))
+    #     if isinstance(key, tuple):
+    #         out = ()
+    #         for i in key:
+    #             out+=((self.__analyzeKeyGeoentity(i),),)
+    #         return tuple(x for y in out for x in y)
+    #     if isinstance(key, (int, slice)):
+    #         return key
 
-    def __analyzeKeyVariable(self, key):
-        """Analyses key for a given dimension."""
+    # def __analyzeKeyVariable(self, key):
+    #     """Analyses key for a given dimension."""
 
-        print "Var entry: ",key, type(key)
+    #     print "Var entry: ",key, type(key)
 
-        if isinstance(key, str):
-            return(self.variable.index(key))
-        if isinstance(key, tuple):
+    #     if isinstance(key, str):
+    #         return(self.variable.index(key))
+    #     if isinstance(key, tuple):
 
-            print "Var tuple: ", key
+    #         print "Var tuple: ", key
 
-            out = ()
-            for i in key:
-                out+=((self.__analyzeKeyVariable(i),),)
+    #         out = ()
+    #         for i in key:
+    #             out+=((self.__analyzeKeyVariable(i),),)
 
-            print "LLLLLLLLLLHHH: ", out, tuple(x for y in out for x in y)
-            return tuple(x for y in out for x in y)
-        if isinstance(key, (int, slice)):
-            return key
+    #         print "LLLLLLLLLLHHH: ", out, tuple(x for y in out for x in y)
+    #         return tuple(x for y in out for x in y)
+    #     if isinstance(key, (int, slice)):
+    #         return key
 
     def addGeoentity(self, geoentity, data=None):
         """Adds new geoentities to the geoentity dimension. Geoentity can be a
@@ -842,12 +1030,14 @@ class GeoVariableArray(object):
 
 
 
-class EquidnaDataException(Exception):
-    """Exception for Equidna data."""
+class FluxException(Exception):
+    """Exception for Flux.
+
+    """
     _message = ""
 
     def __init__(self, message):
         self._message = message
     
     def __str__(self):
-        return("EquidnaDataException: "+self._message)
+        return("FluxException: "+self._message)
