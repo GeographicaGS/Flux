@@ -2,9 +2,26 @@
 
 import data.core as c
 import numpy as np
+import numpy.random as nr
 reload(c)
 
-a = np.array([0.0009,0.0019,0.0029, 
+
+# array([[[56, 58, 35],          Data for ES
+#         [95, 27,  1],          Rows are data for a year for all variables
+#         [16,  7, 17]],         Columns are data for a variable for all years
+
+#        [[20, 17, 50],          Data for EN
+#         [20, 93, 55],
+#         [77, 84, 29]],
+
+#        [[16, 60, 19],          Data for US
+#         [99, 33, 94],
+#         [70, 51, 22]]])
+
+
+
+
+b = np.array([0.0009,0.0019,0.0029, 
               0.0109,0.0119,0.0129, 
               0.0209,0.0219,0.0229, 
               0.1009,0.1019,0.1029, 
@@ -14,83 +31,17 @@ a = np.array([0.0009,0.0019,0.0029,
               0.2109,0.2119,0.2129, 
               0.2209,0.2219,0.2229]).reshape(3,3,3)
 
-gva = c.GeoVariableArray(geoentity=["ES","EN","US"], time=["2011","2012","2013"], variable=["V0","V1","V2"],
+a = nr.randint(0,100,(6,7,3))
+
+a[0,:,:]+=1000
+a[1,:,:]+=100
+
+print "Initial data: "
+print a
+print
+
+gva = c.GeoVariableArray(geoentity=["ES","EN","FR","US","NZ","NL"], 
+                         time=["2011","2012","2013","2014","2015","2016","2017"], variable=["V0","V1","V2"],
                          data=a)
 
-# geo = [
-#     1,
-#     (1,0),
-#     ("US","EN"),
-#     slice(None,None),
-#     slice(0,2),
-#     "US",
-#     0,
-#     ["US","EN"],
-#     0,
-#     slice(1,3),
-#     "US"
-# ]
-
-# time = [
-#     2,
-#     (2,1),
-#     ("2012","2011"),
-#     slice(None,None),
-#     slice(None,None),
-#     "2012",
-#     "2013",
-#     0,
-#     "2013",
-#     ["2013","2011"],
-#     slice(1,3)
-# ]
-
-# var = [
-#     2,
-#     (1,2),
-#     ("V1","V0"),
-#     slice(None,None),
-#     slice(None,None),
-#     "V1",
-#     2,
-#     slice(None,None),
-#     ["V2","V0"],
-#     slice(0,2),
-#     1
-# ]
-
-# value = [
-#     0,
-#     [100,10],
-#     [100,10],
-#     np.array([0,0,0,
-#               0,0,0,
-#               0,0,0,
-#               0,0,0,
-#               0,0,0,
-#               0,0,0,
-#               0,0,0,
-#               0,0,0,
-#               0,0,0]).reshape(3,3,3),
-#     np.array([0,0,0,0,0,0,0,0,0,
-#               0,0,0,0,0,0,0,0,0]).reshape(2,3,3),
-#     0,
-#     0,
-#     np.array([0,0,0,0,0,0]).reshape(2,1,3),
-#     np.array([0,0]).reshape(1,1,2),
-#     np.array([0,0,0,0,0,0,0,0]).reshape(2,2,2),
-#     np.array([0,0]).reshape(1,2,1)
-# ]
-
-
-# for i in range(len(geo)):
-#     print "---------------------"
-
-#     gva = c.GeoVariableArray(geoentity=["ES","EN","US"], time=["2011","2012","2013"], variable=["V0","V1","V2"],
-#                              data=a)
-#     print gva[geo[i],time[i],var[i]] 
-#     print
-#     gva[geo[i],time[i],var[i]] = value[i]
-#     print gva[geo[i],time[i],var[i]] 
-#     print
-
+gva.cluster("V0", 150)

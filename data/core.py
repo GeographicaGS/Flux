@@ -1028,7 +1028,131 @@ class GeoVariableArray(object):
 
         self.addVariable(diffVariable, data=[geoVariableArray[:,:,x] for x in diffVariable])
 
+    def cluster(self, variable, nseeds):
+        """Calculates clusters for a variable.
 
+        nseeds: number of initial seeds
+        seedTolerance: % of the total variable range to admit as a tolerance for falling into a seed 
+
+        TODO: Check this development: first line returns a single
+        variable data set with geoentities in axis 0 and times in axis
+        1. Create therefore a generic object that can hold any
+        combinations of axis.
+
+        """
+
+        data = self[:,:,variable].reshape(len(self.geoentity),len(self.time))
+
+        print "Data"
+        print data
+        print
+
+        clusters = np.empty((len(self.time), len(self.geoentity)))
+
+        print
+        print clusters
+        print
+
+        clus = []
+
+        for i in range(len(self.time)):
+            convergingIterations = np.empty((1, len(self.geoentity)))
+
+            print "-------------"
+            print "Time: ", i
+            print "-------------"
+            print "Data"
+
+            timeD = data[:,i]
+
+            print timeD
+            print
+
+            print convergingIterations
+            print
+
+            print "Min / Max"
+            min = float(timeD.min())
+            max = float(timeD.max())
+            print min, max
+            print
+
+            print "Initial seeds:"
+            seeds = np.repeat(np.linspace(min, max, nseeds)[1:nseeds-1].reshape(1, nseeds-2),
+                              len(self.geoentity), axis=0)
+
+            print seeds
+            print
+
+            timeD2 = np.repeat(timeD.reshape(timeD.size, 1), nseeds-2, axis=1)
+            print timeD2
+
+            print np.abs(seeds-timeD2)
+            fall = (np.abs(seeds-timeD2)).argmin(axis=1)
+            print fall
+            print
+
+            clusters[i,:] = fall
+
+            print "Selected seeds:"
+            
+            sSeeds = set(fall)
+            print sSeeds
+
+            print timeD
+
+            for s in set(fall):
+                clusterIdx = np.where(fall==s)[0]
+
+        print 
+        print "Clusters: "
+        print clusters
+        print
+        print clus
+        print
+
+        for t in range(len(self.time)):
+            clusT = []
+            clus.append(clusT)
+            for g in range(len(self.geoentity)):
+                print t,g,np.where(clusters[t,:]==clusters[t,g])[0].flatten()
+                clusT.append(list(np.where(clusters[t,:]==clusters[t,g])[0].flatten()))
+
+        print clus
+        print
+
+        fClus = []
+        for t in clus:
+            print t
+            print
+            fClusG = []
+            fClus.append(fClusG)
+            for g in t:
+                fClusG.extend(g)
+
+        print fClus
+        print
+
+        fClus = [sorted(set(x)) for x in fClus]
+
+        print fClus
+
+        i = 0
+        while i<len(fClus):
+            k = i+1
+            print i
+            while k<len(fClus):
+                print fClus[i],fClus[k],fClus[i]==fClus[k]
+                if fClus[i]==fClus[k]:
+                    fClus.pop(k)
+                else:
+                    k+=1
+            i+=1
+
+        print fClus
+
+
+            
 
 class FluxException(Exception):
     """Exception for Flux.
