@@ -307,7 +307,7 @@ class GeoVariableArray(object):
         with already None filtered ndarray.
 
         """
-        # print "EW : ", data
+        print "EW : ", data
         # print "EW : ", dimension
         # print "EW : ", self.__data is not None and dimension is not None
 
@@ -357,7 +357,9 @@ class GeoVariableArray(object):
                     dataA[:] = np.nan
                 self.__data = np.append(self.__data, np.array(dataA).reshape(s[0],s[1],1), axis=dimension)
             elif dimension==2:
-                if data is not None:
+                print "JJJJ: ", data
+
+                if data is not None or data!=[]:
 
 
 
@@ -941,11 +943,16 @@ class GeoVariableArray(object):
 
         """
         
-        # print "VAR : ", variable, type(variable)
-        # print
-        # print "DATA : ", data, type(data)
-        # print
-        # print "KKK : ", isinstance(data, np.ndarray)
+        # import ipdb
+        # ipdb.set_trace()
+
+        print "VAR : ", variable, type(variable)
+        print
+        print "DATA : ", data, type(data)
+        print
+        print "KKK : ", isinstance(data, np.ndarray)
+
+        print "SHAPE : ", data.shape
 
         variable = [variable] if not isinstance(variable, list) else variable
         data = [data] if data is not None and isinstance(data, np.ndarray) else data
@@ -982,13 +989,14 @@ class GeoVariableArray(object):
         diffGeoentityAB = arrayops.arraySubstraction(self.geoentity, geoVariableArray.geoentity)
         diffGeoentityBA = arrayops.arraySubstraction(geoVariableArray.geoentity, self.geoentity)
 
-        # print "Shape A : ", self.shape
-        # print "Shape B : ", geoVariableArray.shape
+        print "Shape A : ", self.shape
+        print "Shape B : ", geoVariableArray.shape
+        # print "Economic : ", geoVariableArray[:,:,"IEPG.Economic.Energy"]
 
-        # print "AB : ", diffGeoentityAB
-        # print
-        # print "BA : ", diffGeoentityBA
-        # print
+        print "AB : ", diffGeoentityAB
+        print
+        print "BA : ", diffGeoentityBA
+        print
 
         if diffGeoentityBA is not None:
             self.addGeoentity(diffGeoentityBA)
@@ -1024,9 +1032,15 @@ class GeoVariableArray(object):
         # print
 
         # print "kkkk : "
-        # print [geoVariableArray[:,:,x] for x in diffVariable]
+        # print geoVariableArray[:,:,:]
+        print [geoVariableArray[:,:,x] for x in diffVariable][0]
 
-        self.addVariable(diffVariable, data=[geoVariableArray[:,:,x] for x in diffVariable])
+        # import ipdb
+        # ipdb.set_trace()
+
+        for x in diffVariable: 
+            print "XX : ", x, geoVariableArray[:,:,x]
+            self.addVariable(x, data=geoVariableArray[:,:,str(x)])
 
     def cluster(self, variable, nseeds):
         """Calculates clusters for a variable.
