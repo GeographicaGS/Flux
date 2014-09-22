@@ -1052,103 +1052,47 @@ class GeoVariableArray(object):
         combinations of axis.
 
         """
-
+        # Get variable data
         data = self[:,:,variable].reshape(len(self.geoentity),len(self.time))
-
-        # print "Data"
-        # print data
-        # print
-
         clusters = np.empty((len(self.time), len(self.geoentity)))
-
-        # print
-        # print clusters
-        # print
-
         clus = []
 
+        min = float(np.nanmin(data))
+        max = float(np.nanmax(data))
+        seeds = np.repeat(np.linspace(min, max, nseeds)[1:nseeds-1].reshape(1, nseeds-2),
+                          len(self.geoentity), axis=0)
+
+        # Iterate to get for each year the clusters
         for i in range(len(self.time)):
             convergingIterations = np.empty((1, len(self.geoentity)))
-
-            # print "-------------"
-            # print "Time: ", i
-            # print "-------------"
-            # print "Data"
-
             timeD = data[:,i]
-
-            # print timeD
-            # print
-
-            # print convergingIterations
-            # print
-
-            # print "Min / Max"
-            min = float(timeD.min())
-            max = float(timeD.max())
-            # print min, max
-            # print
-
-            # print "Initial seeds:"
-            seeds = np.repeat(np.linspace(min, max, nseeds)[1:nseeds-1].reshape(1, nseeds-2),
-                              len(self.geoentity), axis=0)
-
-            # print seeds
-            # print
-
             timeD2 = np.repeat(timeD.reshape(timeD.size, 1), nseeds-2, axis=1)
-            # print timeD2
-
-            # print np.abs(seeds-timeD2)
             fall = (np.abs(seeds-timeD2)).argmin(axis=1)
-            # print fall
-            # print
-
             clusters[i,:] = fall
-
-            # print "Selected seeds:"
-            
             sSeeds = set(fall)
-            # print sSeeds
-
-            # print timeD
 
             for s in set(fall):
                 clusterIdx = np.where(fall==s)[0]
-
-        # print 
-        # print "Clusters: "
-        # print clusters
-        # print
-        # print clus
-        # print
 
         for t in range(len(self.time)):
             clusT = []
             clus.append(clusT)
             for g in range(len(self.geoentity)):
-                # print t,g,np.where(clusters[t,:]==clusters[t,g])[0].flatten()
                 clusT.append(list(np.where(clusters[t,:]==clusters[t,g])[0].flatten()))
-
-        # print clus
-        # print
 
         finalClustersMembers = []
         finalClustersValues = []
         for t in range(len(clus)):
             # For each cluster, filter single clusters
             fClus = []
-            # print clus[t]
             [fClus.append(x) for x in clus[t] if x not in fClus]
-            # print fClus
             finalClustersMembers.append(fClus)
             fClusValues = []
+
             for x in fClus:
                 # For each single cluster, take max and min and calculate average
-                # print x
-                # print self.select(x,t,variable)
-                # print self.select(x,t,variable).mean()
-                fClusValues.append(self.select(x,t,variable).mean())
+                fClusValues.append(np.nanmean(self.select(x,t,variable)))
+
             finalClustersValues.append(fClusValues)
 
         return finalClustersMembers, finalClustersValues
