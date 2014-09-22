@@ -36,12 +36,16 @@ a = nr.randint(0,100,(6,7,3))
 a[0,:,:]+=1000
 a[1,:,:]+=100
 
-print "Initial data: "
-print a
-print
+# print "Initial data: "
+# print a
+# print
 
 gva = c.GeoVariableArray(geoentity=["ES","EN","FR","US","NZ","NL"], 
                          time=["2011","2012","2013","2014","2015","2016","2017"], variable=["V0","V1","V2"],
                          data=a)
 
-gva.cluster("V0", 150)
+out = gva.cluster("V0", 30)
+
+print
+print out[0]
+print out[1]

@@ -307,7 +307,7 @@ class GeoVariableArray(object):
         with already None filtered ndarray.
 
         """
-        print "EW : ", data
+        # print "EW : ", data
         # print "EW : ", dimension
         # print "EW : ", self.__data is not None and dimension is not None
 
@@ -357,8 +357,6 @@ class GeoVariableArray(object):
                     dataA[:] = np.nan
                 self.__data = np.append(self.__data, np.array(dataA).reshape(s[0],s[1],1), axis=dimension)
             elif dimension==2:
-                print "JJJJ: ", data
-
                 if data is not None or data!=[]:
 
 
@@ -447,7 +445,7 @@ class GeoVariableArray(object):
         integers: 2
         strings: "US", "2013", "V0"
         lists of mixed above
-        None: all
+        None: all, like slice :
 
         """
         # print "Geo : ", key[, type(key[0])
@@ -946,13 +944,13 @@ class GeoVariableArray(object):
         # import ipdb
         # ipdb.set_trace()
 
-        print "VAR : ", variable, type(variable)
-        print
-        print "DATA : ", data, type(data)
-        print
-        print "KKK : ", isinstance(data, np.ndarray)
+        # print "VAR : ", variable, type(variable)
+        # print
+        # print "DATA : ", data, type(data)
+        # print
+        # print "KKK : ", isinstance(data, np.ndarray)
 
-        print "SHAPE : ", data.shape
+        # print "SHAPE : ", data.shape
 
         variable = [variable] if not isinstance(variable, list) else variable
         data = [data] if data is not None and isinstance(data, np.ndarray) else data
@@ -989,14 +987,14 @@ class GeoVariableArray(object):
         diffGeoentityAB = arrayops.arraySubstraction(self.geoentity, geoVariableArray.geoentity)
         diffGeoentityBA = arrayops.arraySubstraction(geoVariableArray.geoentity, self.geoentity)
 
-        print "Shape A : ", self.shape
-        print "Shape B : ", geoVariableArray.shape
+        # print "Shape A : ", self.shape
+        # print "Shape B : ", geoVariableArray.shape
         # print "Economic : ", geoVariableArray[:,:,"IEPG.Economic.Energy"]
 
-        print "AB : ", diffGeoentityAB
-        print
-        print "BA : ", diffGeoentityBA
-        print
+        # print "AB : ", diffGeoentityAB
+        # print
+        # print "BA : ", diffGeoentityBA
+        # print
 
         if diffGeoentityBA is not None:
             self.addGeoentity(diffGeoentityBA)
@@ -1033,13 +1031,13 @@ class GeoVariableArray(object):
 
         # print "kkkk : "
         # print geoVariableArray[:,:,:]
-        print [geoVariableArray[:,:,x] for x in diffVariable][0]
+        # print [geoVariableArray[:,:,x] for x in diffVariable][0]
 
         # import ipdb
         # ipdb.set_trace()
 
         for x in diffVariable: 
-            print "XX : ", x, geoVariableArray[:,:,x]
+            # print "XX : ", x, geoVariableArray[:,:,x]
             self.addVariable(x, data=geoVariableArray[:,:,str(x)])
 
     def cluster(self, variable, nseeds):
@@ -1057,115 +1055,103 @@ class GeoVariableArray(object):
 
         data = self[:,:,variable].reshape(len(self.geoentity),len(self.time))
 
-        print "Data"
-        print data
-        print
+        # print "Data"
+        # print data
+        # print
 
         clusters = np.empty((len(self.time), len(self.geoentity)))
 
-        print
-        print clusters
-        print
+        # print
+        # print clusters
+        # print
 
         clus = []
 
         for i in range(len(self.time)):
             convergingIterations = np.empty((1, len(self.geoentity)))
 
-            print "-------------"
-            print "Time: ", i
-            print "-------------"
-            print "Data"
+            # print "-------------"
+            # print "Time: ", i
+            # print "-------------"
+            # print "Data"
 
             timeD = data[:,i]
 
-            print timeD
-            print
+            # print timeD
+            # print
 
-            print convergingIterations
-            print
+            # print convergingIterations
+            # print
 
-            print "Min / Max"
+            # print "Min / Max"
             min = float(timeD.min())
             max = float(timeD.max())
-            print min, max
-            print
+            # print min, max
+            # print
 
-            print "Initial seeds:"
+            # print "Initial seeds:"
             seeds = np.repeat(np.linspace(min, max, nseeds)[1:nseeds-1].reshape(1, nseeds-2),
                               len(self.geoentity), axis=0)
 
-            print seeds
-            print
+            # print seeds
+            # print
 
             timeD2 = np.repeat(timeD.reshape(timeD.size, 1), nseeds-2, axis=1)
-            print timeD2
+            # print timeD2
 
-            print np.abs(seeds-timeD2)
+            # print np.abs(seeds-timeD2)
             fall = (np.abs(seeds-timeD2)).argmin(axis=1)
-            print fall
-            print
+            # print fall
+            # print
 
             clusters[i,:] = fall
 
-            print "Selected seeds:"
+            # print "Selected seeds:"
             
             sSeeds = set(fall)
-            print sSeeds
+            # print sSeeds
 
-            print timeD
+            # print timeD
 
             for s in set(fall):
                 clusterIdx = np.where(fall==s)[0]
 
-        print 
-        print "Clusters: "
-        print clusters
-        print
-        print clus
-        print
+        # print 
+        # print "Clusters: "
+        # print clusters
+        # print
+        # print clus
+        # print
 
         for t in range(len(self.time)):
             clusT = []
             clus.append(clusT)
             for g in range(len(self.geoentity)):
-                print t,g,np.where(clusters[t,:]==clusters[t,g])[0].flatten()
+                # print t,g,np.where(clusters[t,:]==clusters[t,g])[0].flatten()
                 clusT.append(list(np.where(clusters[t,:]==clusters[t,g])[0].flatten()))
 
-        print clus
-        print
+        # print clus
+        # print
 
-        fClus = []
-        for t in clus:
-            print t
-            print
-            fClusG = []
-            fClus.append(fClusG)
-            for g in t:
-                fClusG.extend(g)
+        finalClustersMembers = []
+        finalClustersValues = []
+        for t in range(len(clus)):
+            # For each cluster, filter single clusters
+            fClus = []
+            # print clus[t]
+            [fClus.append(x) for x in clus[t] if x not in fClus]
+            # print fClus
+            finalClustersMembers.append(fClus)
+            fClusValues = []
+            for x in fClus:
+                # For each single cluster, take max and min and calculate average
+                # print x
+                # print self.select(x,t,variable)
+                # print self.select(x,t,variable).mean()
+                fClusValues.append(self.select(x,t,variable).mean())
+            finalClustersValues.append(fClusValues)
 
-        print fClus
-        print
-
-        fClus = [sorted(set(x)) for x in fClus]
-
-        print fClus
-
-        i = 0
-        while i<len(fClus):
-            k = i+1
-            print i
-            while k<len(fClus):
-                print fClus[i],fClus[k],fClus[i]==fClus[k]
-                if fClus[i]==fClus[k]:
-                    fClus.pop(k)
-                else:
-                    k+=1
-            i+=1
-
-        print fClus
-
-
+        return finalClustersMembers, finalClustersValues
             
 
 class FluxException(Exception):
