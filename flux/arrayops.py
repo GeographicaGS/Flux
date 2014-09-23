@@ -6,6 +6,8 @@ Array operations.
 
 """
 
+import hashlib
+
 def arrayIntersection(array1, array2):
     """Returns the intersection of two arrays. Objects must be hasheable. TODO: introduce hashes."""
     if array1 and array2:
