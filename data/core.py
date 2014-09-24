@@ -1078,14 +1078,16 @@ class GeoVariableArray(object):
             clusT = []
             clus.append(clusT)
             for g in range(len(self.geoentity)):
-                clusT.append(list(np.where(clusters[t,:]==clusters[t,g])[0].flatten()))
+                e = [x for x in list(np.where(clusters[t,:]==clusters[t,g])[0].flatten()) 
+                     if not np.isnan(self[x,t,0])]
+                clusT.append(e)
 
         finalClustersMembers = []
         finalClustersValues = []
         for t in range(len(clus)):
             # For each cluster, filter single clusters
             fClus = []
-            [fClus.append(x) for x in clus[t] if x not in fClus]
+            [fClus.append(x) for x in clus[t] if x not in fClus and not np.isnan(self[0,t,0])]
             finalClustersMembers.append(fClus)
             fClusValues = []
 
