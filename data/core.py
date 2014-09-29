@@ -6,6 +6,7 @@
 
 import numpy as np, hashlib, arrayops
 from datetime import datetime, timedelta
+import locale
 import calendar
 
 VAR_TYPE_CONTINUOUS = 0
@@ -788,24 +789,22 @@ class GeoVariableArray(object):
             return
 
         unsorted = True
-        while unsorted:
-            unsorted = False
-            i = 0
-            while i<len(self.geoentity)-1:
-                if self.geoentity[i]>self.geoentity[i+1]:
-                    x = self.geoentity[i]
-                    y = self.geoentity[i+1]
-                    a = np.array(self.__data[i,:,:])
-                    b = np.array(self.__data[i+1,:,:])
-                    self.geoentity[i] = y
-                    self.geoentity[i+1] = x
-                    self.__data[i,:,:] = b
-                    self.__data[i+1,:,:] = a
-                    unsorted = True
-                else:
-                    i+=1
+        sortedGeoentity = sorted(self.geoentity, cmp=locale.strcoll)
 
-        unsorted = True
+        for i in sortedGeoentity:
+            iPos = self.geoentity.index(i)
+            fPos = sortedGeoentity.index(i)
+
+            if iPos!=fPos:
+                x = self.geoentity[iPos]
+                y = self.geoentity[fPos]
+                a = np.array(self.__data[iPos,:,:])
+                b = np.array(self.__data[fPos,:,:])
+                self.geoentity[iPos] = y
+                self.geoentity[fPos] = x
+                self.__data[iPos,:,:] = b
+                self.__data[fPos,:,:] = a
+
         while unsorted:
             unsorted = False
             i = 0
