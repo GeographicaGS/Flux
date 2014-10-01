@@ -112,7 +112,7 @@ class ExcelReader(object):
             # print sheet
 
     def readGeoVariableArray(self, sheetName, startCell=(0,0), dimensions=None, 
-                             geoentitiesOrientation=ORIENTATION_ROWS, dataType=np.float32):
+                             geoentitiesOrientation=ORIENTATION_ROWS, dataType=np.float64):
         """Returns a GeoVariableArray given the square of a sheet and taking
         the geoentities either from top of columns or first column,
         depending on the geoentities parameter. The other orientation
@@ -201,6 +201,8 @@ class ExcelReader(object):
                     return np.int32(value)
             if typeB==np.float32:
                 return np.float32(self.__analyzeStringNumber(value))
+            if typeB==np.float64:
+                return np.float64(self.__analyzeStringNumber(value))
         if typeA==2:
             if typeB==np.float32:
                 return np.float32(value)
