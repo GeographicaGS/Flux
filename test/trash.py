@@ -23,7 +23,14 @@ nda = f.Indarray(np.float64,
                  variable=["V0","V1","V2"],
                  data=np.array(data))
 
-zero = np.zeros((1,3,1))
+print nda[[2,0],(1,0),0]
+print
+print nda[(2,0),(1,0),0]
+print
 
-nda.set(("US",None,0), zero)
+# zero = np.zeros((1,3,1))
+
+# nda.set(("US",None,0), zero)
+
+
 

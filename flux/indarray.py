@@ -158,12 +158,38 @@ class Indarray(object):
         string tuples: ("US","ES")
         TODO: callables to generate tuples
 
-        """
-        fKey = ()
-        for i in range(len(key)):
-            fKey+=(self._analyzeKey(self._axis[i],key[i]),)
+        ^^ With the above traditional Numpy indexing is made. If any
+        element of the key is a list, special indexing is made.
 
-        return self._data[fKey]
+        TODO HERE: getting rid of set / get and placing all indexing
+        functions in _getitem_ / _setitem_ >> Continue
+
+        """
+        sp = any([isinstance(x, list) for x in key])
+
+        if sp is False:
+            fKey = ()
+            for i in range(len(key)):
+                fKey+=(self._analyzeKey(self._axis[i],key[i]),)
+
+            out = self._data[fKey]
+        else:
+            import ipdb
+            ipdb.set_trace()
+
+            out = self._data
+            i = self.ndim-1
+        
+            while i>=0:
+                fKey = ()
+                for t in range(i):
+                    fKey+=(slice(None,None),)
+                fKey+=(self._analyzeKey(self._axis[i],key[i]),)
+                out = out[fKey]
+                i-=1
+
+        return out
+
 
     def __setitem__(self, key, value):
         """Set item.
@@ -232,7 +258,7 @@ class Indarray(object):
         None: all, like slice :
 
         """
-        out = self._data
+        out = self._data.view()
         i = self.ndim-1
         
         while i>=0:
@@ -242,7 +268,10 @@ class Indarray(object):
             fKey+=(self._analyzeKey(self._axis[i],key[i]),)
             out = out[fKey]
             i-=1
-            
+         
+        import ipdb
+        ipdb.set_trace()
+   
         return out
 
     def set(self, key, data):
@@ -259,12 +288,12 @@ class Indarray(object):
         if len(key)!=data.ndim:
             raise FluxException("Key and data should have the same dimension.")
 
-        import ipdb
-        ipdb.set_trace()
-
         fKey = ()
         for t in range(self.ndim):
             fKey+=(self._analyzeKey(self._axis[t],key[t]),)
+
+        import ipdb
+        ipdb.set_trace()
 
         self._data[fKey] = data
 
@@ -283,6 +312,9 @@ class Indarray(object):
         TODO: implement callable (to create tuples)
         """
         axis = self._getAxis(axis)
+
+        if isinstance(key, list):
+            key = tuple(key)
 
         if key is None:
             return slice(None, None)
