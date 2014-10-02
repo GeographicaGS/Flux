@@ -168,18 +168,24 @@ class TestIndarray(unittest.TestCase):
         self.nda["US",1:3,1] = np.array([[ 0.2115, 0.2215]])
         npt.assert_array_equal(np.array([[ 0.2115, 0.2215]]), self.nda["US",1:3,1])
 
-    def test_select(self):
+    def test_get(self):
         self.restartData()
 
-        npt.assert_array_equal(np.array(self.data).reshape(3,3,3), self.nda.select((None,None,None)))
-        npt.assert_array_equal(np.array([[[ 0.2129]]]), self.nda.select((2,1,2)))
-        npt.assert_array_equal(self.nda.select(((2,0),1,(1,2))), 
+        npt.assert_array_equal(np.array(self.data).reshape(3,3,3), self.nda.get((None,None,None)))
+        npt.assert_array_equal(np.array([[[ 0.2129]]]), self.nda.get((2,1,2)))
+        npt.assert_array_equal(self.nda.get(((2,0),1,(1,2))), 
                                np.array([[[ 0.2119,  0.2129]],
                                          [[ 0.0119,  0.0129]]]))
-        npt.assert_array_equal(self.nda.select((("US","ES"),"2012",("V2","V0"))),
+        npt.assert_array_equal(self.nda.get((("US","ES"),"2012",("V2","V0"))),
                                np.array([[[ 0.2129,  0.2109]],
                                          [[ 0.0129,  0.0109]]]))
 
+    def test_set(self):
+        self.restartData()
+        newD = np.array([-1,-10])
+
+        self.nda.set((("US","ES"),0,1), newD.reshape(2,1,1))
+        npt.assert_array_equal(self.nda.get((("US","ES"),0,1)), newD.reshape(2,1,1))
 
     def test_sort(self):
         self.restartData()

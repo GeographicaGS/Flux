@@ -223,7 +223,7 @@ class Indarray(object):
         except:
             raise FluxException("Unknown axis addressed by ID "+str(id)+" ("+str(type(id))+").")
 
-    def select(self, key):
+    def get(self, key):
         """Returns selected data. In a tuple, indices can be:
 
         integers: 2
@@ -245,6 +245,38 @@ class Indarray(object):
             
         return out
 
+    def set(self, key, data):
+        """Sets given data to the selected ones. In a tuple, indices can be:
+       
+        integers: 2
+        strings: "US", "2013", "V0"
+        tuples of mixed above
+        None: all, like slice :
+
+        data is a Numpy ndarray of the same size and shape of the selected data.
+
+        """
+        if len(key)!=data.ndim:
+            raise FluxException("Key and data should have the same dimension.")
+
+        import ipdb
+        ipdb.set_trace()
+
+        fKey = ()
+        for t in range(self.ndim):
+            fKey+=(self._analyzeKey(self._axis[t],key[t]),)
+
+        self._data[fKey] = data
+
+        # it = np.nditer(data, flags=["multi_index"])
+        # while not it.finished:
+
+        #     for t in range(self.ndim):
+        #         fKey+=(self._analyzeKey(self._axis[t],key[t][it.multi_index[t]]),)
+        #     self._data[fKey] = it.value
+
+        #     it.iternext()
+        
     def _analyzeKey(self, axis, key):
         """Analyses a key for get/set.
 
