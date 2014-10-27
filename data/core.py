@@ -939,10 +939,6 @@ class GeoVariableArray(object):
         TODO: Review merge function because of rewritten addVariable and company
 
         """
-        
-        # import ipdb
-        # ipdb.set_trace()
-
         # print "VAR : ", variable, type(variable)
         # print
         # print "DATA : ", data, type(data)
@@ -1032,9 +1028,6 @@ class GeoVariableArray(object):
         # print geoVariableArray[:,:,:]
         # print [geoVariableArray[:,:,x] for x in diffVariable][0]
 
-        # import ipdb
-        # ipdb.set_trace()
-
         for x in diffVariable: 
             # print "XX : ", x, geoVariableArray[:,:,x]
             self.addVariable(x, data=geoVariableArray[:,:,str(x)])
@@ -1061,41 +1054,46 @@ class GeoVariableArray(object):
         seeds = np.repeat(np.linspace(min, max, nseeds)[1:nseeds-1].reshape(1, nseeds-2),
                           len(self.geoentity), axis=0)
 
+
         # Iterate to get for each year the clusters
         for i in range(len(self.time)):
-            convergingIterations = np.empty((1, len(self.geoentity)))
             timeD = data[:,i]
+            # This is for masking the clusters that have no data
+            timeMask = timeD/timeD
             timeD2 = np.repeat(timeD.reshape(timeD.size, 1), nseeds-2, axis=1)
-            fall = (np.abs(seeds-timeD2)).argmin(axis=1)
+            fall = (np.abs(seeds-timeD2)).argmin(axis=1)*timeMask
             clusters[i,:] = fall
-            sSeeds = set(fall)
 
             for s in set(fall):
                 clusterIdx = np.where(fall==s)[0]
 
-        for t in range(len(self.time)):
-            clusT = []
-            clus.append(clusT)
-            for g in range(len(self.geoentity)):
-                e = [x for x in list(np.where(clusters[t,:]==clusters[t,g])[0].flatten()) 
-                     if not np.isnan(self[x,t,0])]
-                clusT.append(e)
-
         finalClustersMembers = []
         finalClustersValues = []
-        for t in range(len(clus)):
-            # For each cluster, filter single clusters
+
+        # Check every country in clusters
+        for t in range(len(self.time)):
             fClus = []
-            [fClus.append(x) for x in clus[t] if x not in fClus and not np.isnan(self[0,t,0])]
+            for c in range(nseeds-2):
+                clus = []
+                for g in range(len(self.geoentity)):
+                    if clusters[t,g]==float(c):
+                        clus.append(g)
+                fClus.append(clus)
             finalClustersMembers.append(fClus)
-            fClusValues = []
 
-            for x in fClus:
-                # For each single cluster, take max and min and calculate average
-                fClusValues.append(np.nanmean(self.select(x,t,variable)))
-
-            finalClustersValues.append(fClusValues)
-
+        # Calculate final value for cluster
+        for t in range(len(finalClustersMembers)):
+            values = []
+            for i in range(len(finalClustersMembers[t])):
+                a = 0
+                for g in finalClustersMembers[t][i]:
+                    a += data[g,t]
+                if len(finalClustersMembers[t][i])>0:
+                    values.append(a/len(finalClustersMembers[t][i]))
+                else:
+                    values.append(-1)
+            finalClustersValues.append(values)
+            
         return finalClustersMembers, finalClustersValues
             
 
