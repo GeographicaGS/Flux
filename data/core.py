@@ -1078,7 +1078,8 @@ class GeoVariableArray(object):
                 for g in range(len(self.geoentity)):
                     if clusters[t,g]==float(c):
                         clus.append(g)
-                fClus.append(clus)
+                if clus!=[]:
+                    fClus.append(clus)
             finalClustersMembers.append(fClus)
 
         # Calculate final value for cluster
@@ -1090,8 +1091,8 @@ class GeoVariableArray(object):
                     a += data[g,t]
                 if len(finalClustersMembers[t][i])>0:
                     values.append(a/len(finalClustersMembers[t][i]))
-                else:
-                    values.append(-1)
+                # else:
+                #     values.append(-1)
             finalClustersValues.append(values)
             
         return finalClustersMembers, finalClustersValues
