@@ -40,12 +40,14 @@ a[1,:,:]+=100
 # print a
 # print
 
-gva = c.GeoVariableArray(geoentity=["ES","EN","FR","US","NZ","NL"], 
+gva = c.GeoVariableArray(geoentity=[u"ES",u"EN",u"FR",u"US",u"NZ",u"NL"], 
                          time=["2011","2012","2013","2014","2015","2016","2017"], variable=["V0","V1","V2"],
                          data=a)
 
-out = gva.cluster("V0", 30)
+# out = gva.cluster("V0", 30)
 
-print
-print out[0]
-print out[1]
+# print
+# print out[0]
+# print out[1]
+
+ert = gva.getSubset([u"ES",u"FR"],["2013","2017"],["V0","V2"])

@@ -648,7 +648,7 @@ class GeoVariableArray(object):
         for i in key:
             if isinstance(i, int):
                 out += (i,)
-            if isinstance(i, str):
+            if isinstance(i, unicode):
                 out += (self.__geoentity.index(i),)
 
         return out
@@ -718,7 +718,7 @@ class GeoVariableArray(object):
         for i in key:
             if isinstance(i, int):
                 out += (i,)
-            if isinstance(i, str):
+            if isinstance(i, unicode):
                 out += (self.__geoentity.index(i),)
 
         return out
@@ -774,7 +774,7 @@ class GeoVariableArray(object):
 
 
 
-    def getSubset(self, key):
+    def getSubset(self, mgeoentity, mtime, mvariable):
         """TODO: Returns a GeoVariableArray with the given subset. Take code
         from __getitem__ to analyze the key, create a new private
         method that retrieves both indexes and data. __getitem__ will
@@ -782,7 +782,18 @@ class GeoVariableArray(object):
         with indexes.
 
         """
-        pass
+        geo = self.__analyzeKeySelectGeo(mgeoentity)
+        time = self.__analyzeKeySelectTime(mtime)
+        var = self.__analyzeKeySelectVar(mvariable)
+
+        geoentities = []
+        times = []
+        vars = []
+        [geoentities.append(self.geoentity[i]) for i in geo]
+        [times.append(self.time[i]) for i in time]
+        [vars.append(self.variable[i]) for i in var]
+
+        return GeoVariableArray(geoentity=geoentities,time=times,variable=vars,data=self.select(mgeoentity,mtime,mvariable))
 
     def sort(self):
         if self.__data is None:
