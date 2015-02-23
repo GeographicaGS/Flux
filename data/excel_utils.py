@@ -232,6 +232,9 @@ class ExcelReader(object):
         1007.5 or 1,000,001.2 > 1000001.2.
 
         """
+        # Remove trailing and leading spaces
+        value = value.strip()
+
         if value=="":
             return None
 
