@@ -8,6 +8,7 @@ import numpy as np, hashlib, arrayops
 from datetime import datetime, timedelta
 import locale
 import calendar
+import icu
 
 VAR_TYPE_CONTINUOUS = 0
 VAR_TYPE_DISCRETE = 1
@@ -454,7 +455,9 @@ class GeoVariableArray(object):
         # print "Var : ", key[2], type(key[2])
 
         geo = self.__analyzeKeySelectGeo(geoentity)
+        
         time = self.__analyzeKeySelectTime(time)
+        
         var = self.__analyzeKeySelectVar(variable)
 
         # print
@@ -697,11 +700,6 @@ class GeoVariableArray(object):
         return out
 
 
-
-
-
-
-
     def __analyzeKeySelectGeo(self, key):
         """Analyses a geoentity key for get/set.
 
@@ -800,7 +798,9 @@ class GeoVariableArray(object):
             return
 
         unsorted = True
-        sortedGeoentity = sorted(self.geoentity, cmp=locale.strcoll)
+
+        collator = icu.Collator.createInstance(icu.Locale('es_ES.UTF-8'))
+        sortedGeoentity = sorted(self.geoentity, key=collator.getSortKey)
 
         for i in sortedGeoentity:
             iPos = self.geoentity.index(i)
