@@ -441,6 +441,10 @@ class GeoVariableArray(object):
 
         return self.__data[geo,time,var]
 
+
+    def getTimeIndex(self,time):
+        return self.__analyzeKeySelectTime(time)
+
     def select(self, geoentity, time, variable):
         """Returns selected data. Indices can be:
 
